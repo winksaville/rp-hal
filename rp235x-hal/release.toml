@@ -1,0 +1,10 @@
+[release]
+# Enable changelog updates
+changelog = true
+# Path to the changelog file
+changelog-path = "CHANGELOG.md"
+# Customize the commit message parser if not using Conventional Commits
+changelog-message-template = "{{msg}}"
+# Specify the tag prefix if your tags have one
+tag-prefix = "rp235x-hal-"
+
