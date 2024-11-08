@@ -1,0 +1,51 @@
+# git-cliff ~ configuration file
+
+[remote.github]
+owner = "winksaville"
+repo = "rp-hal"
+# token = ""
+
+[changelog]
+# template for the changelog header
+header = """
+<!-- header cliff.username.pr_number.toml -->
+"""
+
+# template for the changelog body:
+body = """
+
+## What's Changed
+{% if version %}'{{ version }}'{% endif %}
+{% for commit in commits | filter(attribute="merge_commit", value=false) %}
+  * {{ commit.message | split(pat="\n") | first | trim }}\
+    {% if commit.remote.username %} by @{{ commit.remote.username }}{%- endif %}\
+    {% if commit.remote.pr_number %} in #{{ commit.remote.pr_number }}{%- endif %}
+{%- endfor %}
+
+"""
+
+# remove the leading and trailing whitespace from the template
+trim = true
+
+# template for the changelog footer
+footer = """
+
+<!-- footer cliff.username.pr_number.toml -->
+"""
+
+# postprocessors
+postprocessors = []
+
+[git]
+conventional_commits = true
+filter_unconventional = false
+split_commits = false
+#commit_preprocessors = [
+#  { pattern = '\((\w+\s)?#([0-9]+)\)', replace = "" },
+#]
+filter_commits = true
+topo_order = false
+sort_commits = "newest"
+
+[bump]
+initial_tag = "rp235x-hal-v0.2.0"

@@ -1,0 +1,60 @@
+# git-cliff ~ configuration file
+
+[remote.github]
+owner = "winksaville"
+repo = "git-cliff"
+# token = ""
+
+[changelog]
+# template for the changelog header
+header = """
+<!-- header cliff.version.commits.toml -->
+"""
+
+# template for the changelog body:
+body = """
+## What's Changed
+{% if version %}'{{ version }}'{% endif %}
+{% for commit in commits %}
+  {% if commit.remote.username %}
+     -1 remote.username='{{ commit.remote.username }}'
+  {% endif %}
+  {% if commit.remote.pr_title %}
+     -2 remote.pr_title='{{ commit.remote.pr_title }}'
+  {% endif %}
+  {% if commit.remote.pr_number %}
+     -3 remote.pr_number='{{ commit.remote.pr_number }}'
+  {% endif %}
+  {% if commit.remote.pr_labels %}
+     -4 remote.pr_labels='{{ commit.remote.pr_labels }}'
+  {% endif %}
+  {% if commit.remote.is_first_time %}
+     -5 remote.is_first_time='{{ commit.remote.is_first_time }}'
+  {% endif %}
+  * conventional={{ commit.conventional }} id='{{ commit.id }}' group='{{ commit.group }}' scope='{{ commit.scope }}' merge_commit='{{ commit.merge_commit }}' message='{{ commit.message }}'
+{% endfor %}
+"""
+# remove the leading and trailing whitespace from the template
+trim = true
+
+# template for the changelog footer
+footer = """
+<!-- footer cliff.version.commits.toml -->
+"""
+
+# postprocessors
+postprocessors = []
+
+[git]
+conventional_commits = true
+filter_unconventional = false
+split_commits = false
+#commit_preprocessors = [
+#  { pattern = '\((\w+\s)?#([0-9]+)\)', replace = "" },
+#]
+filter_commits = false
+topo_order = false
+sort_commits = "newest"
+
+[bump]
+initial_tag = "rp235x-hal-v0.2.0"

@@ -1,0 +1,94 @@
+# git-cliff ~ configuration file
+
+[remote.github]
+owner = "rp-rs"
+repo = "rp-hal"
+# token = ""
+
+[changelog]
+# template for the changelog header
+header = """
+<!-- header cliff.rp-rs.github.toml -->
+"""
+
+# template for the changelog body:
+
+# OK but sometimes there are 2 entries for a commit the
+# "commit.remote.pr_title" followed by "commit.message".
+# Also, usually they are adjacent first the pr_title followed
+# by the "commit.message" but sometimes that isn't always
+# true.
+#
+# For instance; a clone of `git@github.com:rp-ps/rp-hal`
+# then cd to `rp235x-hal` and then executing:
+#   `git cliff -vv --config cliff.rp-rs.github.toml --include-path "rp235x-hal/**/*" --bump minor -o CHANGELOG.rp-rs.github.md --repository "../" 2>&1 | tee log.rp-rs.github.txt`
+# you'll set the last commit is:
+#   `* Add an RP2350 HAL. @thejpster`
+# and then 9 commits previous to that is:
+#   `pr:* Add an RP2350 HAL. @thejpster [#834](https://github.com/rp-rs/rp-hal/pull/834)`
+# this appears to be because of merges
+body = """
+{%- if version %} in ## [{{ version }}]{%- endif -%}
+{% for commit in commits %}
+  {% if commit.remote.pr_title -%}
+    pr: {%- set commit_message = commit.remote.pr_title -%}
+  {%- else -%}
+    {%- set commit_message = commit.message -%}
+  {%- endif -%}
+  * {{ commit_message | split(pat="\n") | first | trim }}\
+    {% if commit.remote.username %} @{{ commit.remote.username }}{%- endif -%}
+    {% if commit.remote.pr_number %} \
+      [#{{ commit.remote.pr_number }}]({{ self::remote_url() }}/pull/{{ commit.remote.pr_number }}) \
+    {%- endif %}
+{%- endfor -%}
+
+{%- if github -%}
+{% if github.contributors | filter(attribute="is_first_time", value=true) | length != 0 %}
+  {% raw %}\n{% endraw -%}
+  ## New Contributors
+{%- endif %}\
+{% for contributor in github.contributors | filter(attribute="is_first_time", value=true) %}
+  * @{{ contributor.username }} made their first contribution
+    {%- if contributor.pr_number %} in \
+      [#{{ contributor.pr_number }}]({{ self::remote_url() }}/pull/{{ contributor.pr_number }}) \
+    {%- endif %}
+{%- endfor -%}
+{%- endif -%}
+
+{% if version %}
+    {% if previous.version %}
+      **Full Changelog**: {{ self::remote_url() }}/compare/{{ previous.version }}...{{ version }}
+    {% endif %}
+{% else -%}
+  {% raw %}\n{% endraw %}
+{% endif %}
+
+{%- macro remote_url() -%}
+  https://github.com/{{ remote.github.owner }}/{{ remote.github.repo }}
+{%- endmacro -%}
+"""
+
+# remove the leading and trailing whitespace from the template
+trim = true
+
+# template for the changelog footer
+footer = """
+<!-- footer cliff.rp-rs.github.toml -->
+"""
+
+# postprocessors
+postprocessors = []
+
+[git]
+conventional_commits = false
+filter_unconventional = false
+split_commits = false
+#commit_preprocessors = [
+#  { pattern = '\((\w+\s)?#([0-9]+)\)', replace = "" },
+#]
+filter_commits = true
+topo_order = false
+sort_commits = "newest"
+
+[bump]
+initial_tag = "rp235x-hal-v0.2.0"
