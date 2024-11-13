@@ -1,0 +1,65 @@
+# git-cliff ~ configuration file
+
+[remote.github]
+owner = "winksaville"
+repo = "rp-hal"
+# token = ""
+
+[changelog]
+# There are two copies of this clib.xxx.toml file:
+#   cliff.winksaville.rp-hal.toml
+#   cliff.rp-hal.rp-hal.toml
+# The only significant difference is the owner = "winksaville" or "rp-hal" and
+# the file name in the header and footer.
+#
+# If you execute 
+#  `git cliff --config cliff.rp-rs.rp-hal.toml --include-path "rp235x-hal/**/*" --bump minor -o CHANGELOG.rp-rs.rp-hal.md --repository "../"`
+# We see see the `[#868]` with the `remote_url()`:
+#  - commit.merge_commit=true  * Merge pull request #866 from jannic/port-861-to-rp235x @jannic [#866](https://github.com/rp-rs/rp-hal/pull/866)
+#
+# But when the `owner = "winksaville"` and we execute the same command with a different toml and .md output files:
+#  `git cliff --config cliff.winksaville.rp-hal.toml --include-path "rp235x-hal/**/*" --bump minor -o CHANGELOG.winksaville.rp-hal.md --repository "../"`
+# We see do NOT see the `[#868]` with the `remote_url()`:
+#  - commit.merge_commit=true  * Merge pull request #868 from allexoll/main @thejpster
+
+# template for the changelog body:
+body = """
+{% raw %}\n{% endraw %}
+{% if version %} ## [{{ version }}]{% endif %}
+{% for commit in commits %}
+  - commit.merge_commit={%if commit.merge_commit %}true  {% else %}false {% endif %}\
+  * {{ commit.message | split(pat="\n") | first | trim }}\
+    {% if commit.remote.username %} @{{ commit.remote.username }}{%- endif -%}
+    {% if commit.remote.pr_number %} \
+      [#{{ commit.remote.pr_number }}]({{ self::remote_url() }}/pull/{{ commit.remote.pr_number }})
+    {%- endif %}
+{%- endfor -%}
+
+{%- macro remote_url() -%}
+    https://github.com/{{ remote.github.owner }}/{{ remote.github.repo }}
+{%- endmacro -%}
+"""
+#  {%- if commit.remote.pr_title -%}
+#      {%- set commit_message = "crp: " ~ commit.remote.pr_title -%}
+#  {%- elif commit.message -%}
+#      {%- set commit_message = "cm:  " ~ commit.message -%}
+#  {%- else %}
+#      {%- set commit_message = "cb:  " ~ commit.body -%}
+#  {%- endif -%}
+
+# remove the leading and trailing whitespace from the template
+trim = true
+
+# postprocessors
+postprocessors = []
+
+[git]
+conventional_commits = false
+filter_unconventional = false
+split_commits = false
+filter_commits = false
+topo_order = false
+sort_commits = "newest"
+
+[bump]
+initial_tag = "rp235x-hal-v0.2.0"

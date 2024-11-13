@@ -1,0 +1,40 @@
+# git-cliff ~ configuration file
+
+[remote.github]
+owner = "winksaville"
+repo = "rp-hal"
+# token = ""
+
+[changelog]
+body = """
+{% raw %}\n{% endraw %}
+{% if version %} ## [{{ version }}]{% endif %}
+{% for commit in commits %}
+  - commit.merge_commit={%if commit.merge_commit %}true  {% else %}false {% endif %}\
+  * {{ commit.message | split(pat="\n") | first | trim }}\
+    {% if commit.remote.username %} @{{ commit.remote.username }}{%- endif -%}
+    {% if commit.remote.pr_title %} pt='{{ commit.remote.pr_title }}'{%- endif -%}
+    {% if commit.remote.pr_number %} \
+      [#{{ commit.remote.pr_number }}]({{ self::remote_url() }}/pull/{{ commit.remote.pr_number }})
+    {%- endif %}
+{%- endfor -%}
+
+{%- macro remote_url() -%}
+    https://github.com/{{ remote.github.owner }}/{{ remote.github.repo }}
+{%- endmacro -%}
+"""
+
+trim = true
+
+postprocessors = []
+
+[git]
+conventional_commits = false
+filter_unconventional = false
+split_commits = false
+filter_commits = false
+topo_order = false
+sort_commits = "newest"
+
+[bump]
+initial_tag = "rp235x-hal-v0.2.0"

@@ -1,4 +1,20 @@
 # git-cliff ~ configuration file
+#
+# This is close to a Cliff.toml configuration file for rp235x-hal
+# so far. But it needs to incorporate using the "pr_url"
+# from an `associated-commit.merge_commit==true` and
+# `associated-commit.remote.pr_title`" == commit.message. I expect
+# these will be the value and key in a hashmap as I mention in the
+# series of post to git-cliff discord channel starting here:
+#  https://discord.com/channels/1093977388892819553/1093977768372490270/1306252297864744981
+#
+# I see the pr_url would be something like this code from below:
+#   {% if commit.remote.pr_number %} \
+#     [#{{ commit.remote.pr_number }}]({{ self::remote_url() }}/pull/{{ commit.remote.pr_number }}) \
+#   {%- endif %}
+#
+# You can find a minimalistic version of this where I just output
+# commits and version in cliff.rp-rs.rp-hal.plus-pr_title.toml
 
 [remote.github]
 owner = "rp-rs"
